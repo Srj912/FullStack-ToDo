@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { FaCheck, FaEdit, FaTrash } from "react-icons/fa";
+import { Button, Modal, Form } from "react-bootstrap";
 
 export const Todo = () => {
     const [todos, setTodos] = useState([]);
     const [newTask, setNewTask] = useState("");
+    const [editingTask, setEditingTask] = useState({ id: null, text: "" });
+    const [showEditModal, setShowEditModal] = useState(false);
 
     useEffect(() => {
         fetchTodos();
@@ -45,6 +49,21 @@ export const Todo = () => {
             .catch((err) => console.log(err));
     };
 
+    const handleEdit = (id, text) => {
+        setEditingTask({ id, text });
+        setShowEditModal(true);
+    };
+
+    const editTask = () => {
+        axios
+            .put(`http://localhost:3000/todos/${editingTask.id}`, { task: editingTask.text }) // Update the task text
+            .then(() => {
+                setShowEditModal(false);
+                fetchTodos(); // Fetch updated data from the server
+            })
+            .catch((err) => console.log(err));
+    };
+
     return (
         <div>
             <h2>To-Do App</h2>
@@ -64,11 +83,32 @@ export const Todo = () => {
                         >
                             {todo.task}
                         </span>
-                        <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+                        <FaEdit className="edit-icon" onClick={() => handleEdit(todo.id, todo.task)} />
+                        <FaTrash className="delete-icon" onClick={() => deleteTodo(todo.id)} />
                     </li>
                 ))}
             </ul>
+
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Task</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form.Control
+                        type="text"
+                        value={editingTask.text}
+                        onChange={(e) => setEditingTask({ ...editingTask, text: e.target.value })}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={editTask}>
+                        Save
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };
-

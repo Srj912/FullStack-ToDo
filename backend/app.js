@@ -38,9 +38,9 @@ app.get("/todos", (req, res) => {
 
 app.put("/todos/:id", (req, res) => {
     const { id } = req.params;
-    const { completed } = req.body;
-    const sql = "UPDATE todos SET completed = ? WHERE id = ?";
-    db.query(sql, [completed, id], (err, data) => {
+    const { task } = req.body; 
+    const sql = "UPDATE todos SET task = ? WHERE id = ?"; 
+    db.query(sql, [task, id], (err, data) => {
         if (err) {
             res.json(err);
         } else {
@@ -48,6 +48,7 @@ app.put("/todos/:id", (req, res) => {
         }
     });
 });
+
 
 app.delete("/todos/:id", (req, res) => {
     const { id } = req.params;
